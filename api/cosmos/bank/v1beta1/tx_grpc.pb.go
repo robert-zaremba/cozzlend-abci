@@ -23,6 +23,7 @@ const (
 	Msg_MultiSend_FullMethodName      = "/cosmos.bank.v1beta1.Msg/MultiSend"
 	Msg_UpdateParams_FullMethodName   = "/cosmos.bank.v1beta1.Msg/UpdateParams"
 	Msg_SetSendEnabled_FullMethodName = "/cosmos.bank.v1beta1.Msg/SetSendEnabled"
+	Msg_Liquidate_FullMethodName      = "/cosmos.bank.v1beta1.Msg/Liquidate"
 )
 
 // MsgClient is the client API for Msg service.
@@ -45,6 +46,7 @@ type MsgClient interface {
 	//
 	// Since: cosmos-sdk 0.47
 	SetSendEnabled(ctx context.Context, in *MsgSetSendEnabled, opts ...grpc.CallOption) (*MsgSetSendEnabledResponse, error)
+	Liquidate(ctx context.Context, in *MsgLiquidate, opts ...grpc.CallOption) (*MsgLiquidateResponse, error)
 }
 
 type msgClient struct {
@@ -91,6 +93,15 @@ func (c *msgClient) SetSendEnabled(ctx context.Context, in *MsgSetSendEnabled, o
 	return out, nil
 }
 
+func (c *msgClient) Liquidate(ctx context.Context, in *MsgLiquidate, opts ...grpc.CallOption) (*MsgLiquidateResponse, error) {
+	out := new(MsgLiquidateResponse)
+	err := c.cc.Invoke(ctx, Msg_Liquidate_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 // All implementations must embed UnimplementedMsgServer
 // for forward compatibility
@@ -111,6 +122,7 @@ type MsgServer interface {
 	//
 	// Since: cosmos-sdk 0.47
 	SetSendEnabled(context.Context, *MsgSetSendEnabled) (*MsgSetSendEnabledResponse, error)
+	Liquidate(context.Context, *MsgLiquidate) (*MsgLiquidateResponse, error)
 	mustEmbedUnimplementedMsgServer()
 }
 
@@ -129,6 +141,9 @@ func (UnimplementedMsgServer) UpdateParams(context.Context, *MsgUpdateParams) (*
 }
 func (UnimplementedMsgServer) SetSendEnabled(context.Context, *MsgSetSendEnabled) (*MsgSetSendEnabledResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetSendEnabled not implemented")
+}
+func (UnimplementedMsgServer) Liquidate(context.Context, *MsgLiquidate) (*MsgLiquidateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Liquidate not implemented")
 }
 func (UnimplementedMsgServer) mustEmbedUnimplementedMsgServer() {}
 
@@ -215,6 +230,24 @@ func _Msg_SetSendEnabled_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_Liquidate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgLiquidate)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).Liquidate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Msg_Liquidate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).Liquidate(ctx, req.(*MsgLiquidate))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Msg_ServiceDesc is the grpc.ServiceDesc for Msg service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -237,6 +270,10 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetSendEnabled",
 			Handler:    _Msg_SetSendEnabled_Handler,
+		},
+		{
+			MethodName: "Liquidate",
+			Handler:    _Msg_Liquidate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
