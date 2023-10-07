@@ -2,7 +2,7 @@
   <h1> Cosmos SDK </h1>
 </div>
 
-![banner](docs/static/img/banner.jpg)
+![CROZZ_ACTIVE](https://github.com/robert-zaremba/cozzlend-abci/assets/811701/45bce7a2-5714-47ae-b028-9df6ac1bfcde)
 
 <div align="center">
   <a href="https://github.com/cosmos/cosmos-sdk/blob/main/LICENSE">
