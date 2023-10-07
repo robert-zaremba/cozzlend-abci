@@ -18,6 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
@@ -31,6 +32,8 @@ type LiquidationProposalHandler struct {
 	txVerifier baseapp.ProposalTxVerifier
 
 	priorityMsgType string
+
+	bank *bankkeeper.Keeper
 }
 
 func NewLiquidationProposalHandler(txVerifier baseapp.ProposalTxVerifier, priorityMsgType string) *LiquidationProposalHandler {

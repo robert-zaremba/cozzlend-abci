@@ -50,6 +50,8 @@ type Keeper interface {
 	UndelegateCoins(ctx context.Context, moduleAccAddr, delegatorAddr sdk.AccAddress, amt sdk.Coins) error
 
 	types.QueryServer
+
+	SetLiquidationAdjustment(math.Int)
 }
 
 // BaseKeeper manages transfers between accounts. It implements the Keeper interface.
@@ -61,6 +63,12 @@ type BaseKeeper struct {
 	storeService           store.KVStoreService
 	mintCoinsRestrictionFn types.MintingRestrictionFn
 	logger                 log.Logger
+
+	liquidationAdjustment math.Int
+}
+
+func (k *BaseKeeper) SetLiquidationAdjustment(liquidationAdjustment math.Int) {
+	k.liquidationAdjustment = liquidationAdjustment
 }
 
 // GetPaginatedTotalSupply queries for the supply, ignoring 0 coins, with a given pagination
@@ -103,6 +111,8 @@ func NewBaseKeeper(
 		storeService:           storeService,
 		mintCoinsRestrictionFn: types.NoOpMintingRestrictionFn,
 		logger:                 logger,
+
+		liquidationAdjustment: math.ZeroInt(),
 	}
 }
 

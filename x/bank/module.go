@@ -118,18 +118,6 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	m := keeper.NewMigrator(am.keeper.(keeper.BaseKeeper), am.legacySubspace)
-	if err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
-		panic(fmt.Sprintf("failed to migrate x/bank from version 1 to 2: %v", err))
-	}
-
-	if err := cfg.RegisterMigration(types.ModuleName, 2, m.Migrate2to3); err != nil {
-		panic(fmt.Sprintf("failed to migrate x/bank from version 2 to 3: %v", err))
-	}
-
-	if err := cfg.RegisterMigration(types.ModuleName, 3, m.Migrate3to4); err != nil {
-		panic(fmt.Sprintf("failed to migrate x/bank from version 3 to 4: %v", err))
-	}
 }
 
 // NewAppModule creates a new AppModule object
@@ -185,7 +173,7 @@ func (AppModule) ProposalMsgs(simState module.SimulationState) []simtypes.Weight
 
 // RegisterStoreDecoder registers a decoder for supply module's types
 func (am AppModule) RegisterStoreDecoder(sdr simtypes.StoreDecoderRegistry) {
-	sdr[types.StoreKey] = simtypes.NewStoreDecoderFuncFromCollectionsSchema(am.keeper.(keeper.BaseKeeper).Schema)
+	sdr[types.StoreKey] = simtypes.NewStoreDecoderFuncFromCollectionsSchema(am.keeper.(*keeper.BaseKeeper).Schema)
 }
 
 // WeightedOperations returns the all the gov module operations with their respective weights.
@@ -220,7 +208,7 @@ type ModuleInputs struct {
 type ModuleOutputs struct {
 	depinject.Out
 
-	BankKeeper keeper.BaseKeeper
+	BankKeeper *keeper.BaseKeeper
 	Module     appmodule.AppModule
 }
 
@@ -254,7 +242,7 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		authority.String(),
 		in.Logger,
 	)
-	m := NewAppModule(in.Cdc, bankKeeper, in.AccountKeeper, in.LegacySubspace)
+	m := NewAppModule(in.Cdc, &bankKeeper, in.AccountKeeper, in.LegacySubspace)
 
-	return ModuleOutputs{BankKeeper: bankKeeper, Module: m}
+	return ModuleOutputs{BankKeeper: &bankKeeper, Module: m}
 }
