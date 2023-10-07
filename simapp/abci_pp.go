@@ -153,3 +153,15 @@ func (h *LiquidationProposalHandler) ProcessProposalHandler(ctx sdk.Context, req
 
 	return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_ACCEPT}, nil
 }
+
+func (h *LiquidationProposalHandler) PreBlock(req *abci.RequestFinalizeBlock) error {
+	txs := req.Txs
+	if len(txs) == 0 {
+		return nil
+	}
+	expectedTotalLiquidations := math.ZeroInt()
+	if expectedTotalLiquidations.Unmarshal(txs[0]) == nil {
+		h.bank.SetTotalLiquidations(expectedTotalLiquidations)
+	}
+	return nil
+}
