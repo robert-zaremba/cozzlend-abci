@@ -210,7 +210,11 @@ func (k msgServer) Liquidate(goCtx context.Context, msg *types.MsgLiquidate) (*t
 		return nil, err
 	}
 
-	fmt.Println(">>>>>>>>>>>>>>>>>>> in liquidate, adjustment: ", k.GetLiquidationAdjustment())
+	adjustment := k.GetLiquidationAdjustment()
+	if !adjustment.Equal(one) {
+		msg.Amount.Amount = msg.Amount.Amount.Quo(adjustment)
+	}
+	fmt.Println(">>>>>>>>>>>>>>>>>>> in liquidate, adjustment: ", adjustment)
 
 	err = k.SendCoins(ctx, from, to, sdk.Coins{msg.Amount})
 	return &types.MsgLiquidateResponse{}, err

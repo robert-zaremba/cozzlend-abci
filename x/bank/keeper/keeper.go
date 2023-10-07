@@ -51,7 +51,7 @@ type Keeper interface {
 
 	types.QueryServer
 
-	SetLiquidationAdjustment(math.Int)
+	SetTotalLiquidations(math.Int)
 	GetLiquidationAdjustment() math.Int
 }
 
@@ -68,8 +68,17 @@ type BaseKeeper struct {
 	liquidationAdjustment math.Int
 }
 
-func (k *BaseKeeper) SetLiquidationAdjustment(liquidationAdjustment math.Int) {
-	k.liquidationAdjustment = liquidationAdjustment
+var one = math.OneInt()
+
+func (k *BaseKeeper) SetTotalLiquidations(totalLiquidations math.Int) {
+	fmt.Println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>> total liquidations ", totalLiquidations)
+	maxLiquidations := math.NewInt(100)
+	if maxLiquidations.GTE(totalLiquidations) {
+		k.liquidationAdjustment = one
+		return
+	}
+
+	k.liquidationAdjustment = totalLiquidations.Quo(maxLiquidations)
 }
 
 func (k *BaseKeeper) GetLiquidationAdjustment() math.Int {

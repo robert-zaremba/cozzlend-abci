@@ -3,7 +3,6 @@ package simapp
 import (
 	// "bytes"
 	// "context"
-	"fmt"
 
 	"github.com/cockroachdb/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -90,9 +89,7 @@ func (h *LiquidationProposalHandler) PrepareProposalHandler(ctx sdk.Context, req
 	}
 
 	txs := h.txSelector.SelectedTxs(ctx)
-	if !totalLiquidations.IsZero() {
-		fmt.Println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>> total liquidations ", totalLiquidations)
-	}
+	h.bank.SetTotalLiquidations(totalLiquidations)
 
 	return &abci.ResponsePrepareProposal{Txs: txs}, nil
 }
