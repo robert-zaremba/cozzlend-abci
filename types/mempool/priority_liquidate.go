@@ -16,7 +16,7 @@ var (
 
 type LiquidationTxKey struct {
 	IsLiquidation bool
-	Nonce         int64
+	Priority      int64
 }
 
 func newLiquidityTxPriority(liquidationMsgTypeURL string) TxPriority[LiquidationTxKey] {
@@ -37,7 +37,8 @@ func newLiquidityTxPriority(liquidationMsgTypeURL string) TxPriority[Liquidation
 				}
 				return -1
 			}
-			return skiplist.Int64.Compare(a, b)
+
+			return skiplist.Int64.Compare(a.Priority, b.Priority)
 		},
 		MinValue: LiquidationTxKey{false, math.MinInt64},
 	}
