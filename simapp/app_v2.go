@@ -231,7 +231,7 @@ func NewSimApp(
 	// Setting prepare proposal
 	//
 	liquidationMsgTypeURL := sdk.MsgTypeURL(new(banktypes.MsgLiquidate))
-	abciPropHandler := NewLiquidationProposalHandler(app.App.BaseApp, liquidationMsgTypeURL)
+	abciPropHandler := NewLiquidationProposalHandler(app.App.BaseApp, liquidationMsgTypeURL, app.BankKeeper)
 	app.App.BaseApp.SetMempool(abciPropHandler.Mempool)
 	app.App.BaseApp.SetPrepareProposal(abciPropHandler.PrepareProposalHandler)
 	app.App.BaseApp.SetProcessProposal(abciPropHandler.ProcessProposalHandler)

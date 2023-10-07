@@ -52,6 +52,7 @@ type Keeper interface {
 	types.QueryServer
 
 	SetLiquidationAdjustment(math.Int)
+	GetLiquidationAdjustment() math.Int
 }
 
 // BaseKeeper manages transfers between accounts. It implements the Keeper interface.
@@ -69,6 +70,10 @@ type BaseKeeper struct {
 
 func (k *BaseKeeper) SetLiquidationAdjustment(liquidationAdjustment math.Int) {
 	k.liquidationAdjustment = liquidationAdjustment
+}
+
+func (k *BaseKeeper) GetLiquidationAdjustment() math.Int {
+	return k.liquidationAdjustment
 }
 
 // GetPaginatedTotalSupply queries for the supply, ignoring 0 coins, with a given pagination

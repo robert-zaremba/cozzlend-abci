@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/go-metrics"
 
@@ -208,6 +209,8 @@ func (k msgServer) Liquidate(goCtx context.Context, msg *types.MsgLiquidate) (*t
 	if err := k.IsSendEnabledCoins(ctx, msg.Amount); err != nil {
 		return nil, err
 	}
+
+	fmt.Println(">>>>>>>>>>>>>>>>>>> in liquidate, adjustment: ", k.GetLiquidationAdjustment())
 
 	err = k.SendCoins(ctx, from, to, sdk.Coins{msg.Amount})
 	return &types.MsgLiquidateResponse{}, err

@@ -33,10 +33,10 @@ type LiquidationProposalHandler struct {
 
 	priorityMsgType string
 
-	bank *bankkeeper.Keeper
+	bank bankkeeper.Keeper
 }
 
-func NewLiquidationProposalHandler(txVerifier baseapp.ProposalTxVerifier, priorityMsgType string) *LiquidationProposalHandler {
+func NewLiquidationProposalHandler(txVerifier baseapp.ProposalTxVerifier, priorityMsgType string, bank bankkeeper.Keeper) *LiquidationProposalHandler {
 	return &LiquidationProposalHandler{
 		Mempool:         mempool.NewLiquidatorMempool(priorityMsgType),
 		txDecoder:       txVerifier.TxDecode,
@@ -44,6 +44,7 @@ func NewLiquidationProposalHandler(txVerifier baseapp.ProposalTxVerifier, priori
 		txVerifier:      txVerifier,
 		txSelector:      baseapp.NewDefaultTxSelector(),
 		priorityMsgType: priorityMsgType,
+		bank:            bank,
 	}
 }
 
