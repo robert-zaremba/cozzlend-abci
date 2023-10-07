@@ -26,6 +26,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgSend{},
 		&MsgMultiSend{},
 		&MsgUpdateParams{},
+		&MsgLiquidate{},
 	)
 	registry.RegisterImplementations(
 		(*authz.Authorization)(nil),

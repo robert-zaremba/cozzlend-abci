@@ -182,3 +182,33 @@ func (k msgServer) SetSendEnabled(goCtx context.Context, msg *types.MsgSetSendEn
 
 	return &types.MsgSetSendEnabledResponse{}, nil
 }
+
+func (k msgServer) Liquidate(goCtx context.Context, msg *types.MsgLiquidate) (*types.MsgLiquidateResponse, error) {
+	base, ok := k.Keeper.(BaseKeeper)
+	if !ok {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid keeper type: %T", k.Keeper)
+	}
+
+	from, err := base.ak.AddressCodec().StringToBytes(msg.Borrower)
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid borrower address: %s", err)
+	}
+	to, err := base.ak.AddressCodec().StringToBytes(msg.Liquidator)
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid to address: %s", err)
+	}
+	if !msg.Amount.IsValid() {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+	}
+
+	if !msg.Amount.IsPositive() {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+	}
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	if err := k.IsSendEnabledCoins(ctx, msg.Amount); err != nil {
+		return nil, err
+	}
+
+	err = k.SendCoins(ctx, from, to, sdk.Coins{msg.Amount})
+	return &types.MsgLiquidateResponse{}, err
+}
