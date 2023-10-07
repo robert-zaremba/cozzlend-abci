@@ -28,3 +28,7 @@ func NewMsgSetSendEnabled(authority string, sendEnabled []*SendEnabled, useDefau
 		UseDefaultFor: useDefaultFor,
 	}
 }
+
+func NewMsgLiquidate(liquidator, borrower sdk.AccAddress, amount sdk.Coin) *MsgLiquidate {
+	return &MsgLiquidate{Liquidator: liquidator.String(), Borrower: borrower.String(), Amount: amount}
+}

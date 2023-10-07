@@ -31,6 +31,7 @@ func NewTxCmd(ac address.Codec) *cobra.Command {
 	txCmd.AddCommand(
 		NewSendTxCmd(ac),
 		NewMultiSendTxCmd(ac),
+		NewLiquidateTxCmd(ac),
 	)
 
 	return txCmd
@@ -146,6 +147,38 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.`,
 	}
 
 	cmd.Flags().Bool(FlagSplit, false, "Send the equally split token amount to each address")
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// NewLiquidateTxCmd returns a CLI command handler for creating a MsgSend transaction.
+func NewLiquidateTxCmd(ac address.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "liquidate [liquidator_key_or_address] [borrower_address] [amount]",
+		Short: "Liquidates borrower.",
+		Long:  `Liquidates borrower in a fair manner. The liquidation always succeds and it's adjusted to the max available liquidation size.`,
+		Args:  cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.Flags().Set(flags.FlagFrom, args[0])
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			liquidator, err := ac.StringToBytes(args[1])
+			if err != nil {
+				return err
+			}
+			coins, err := sdk.ParseCoinNormalized(args[2])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgLiquidate(clientCtx.GetFromAddress(), liquidator, coins)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
