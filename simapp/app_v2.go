@@ -28,6 +28,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -224,6 +225,13 @@ func NewSimApp(
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
+	// Setting prepare proposal
+	nonceMempool := mempool.NewLiquidatorMempool()
+	abciPropHandler := baseapp.NewDefaultProposalHandler(nonceMempool, app.App.BaseApp)
+	app.App.BaseApp.SetMempool(nonceMempool)
+	app.App.BaseApp.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
+	app.App.BaseApp.SetProcessProposal(abciPropHandler.ProcessProposalHandler())
+
 	// register streaming services
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		panic(err)
@@ -266,6 +274,10 @@ func NewSimApp(
 	}
 
 	return app
+}
+
+func NewDefaultProposalHandler(nonceMempool *mempool.SenderNonceMempool, baseApp *baseapp.BaseApp) {
+	panic("unimplemented")
 }
 
 // LegacyAmino returns SimApp's amino codec.
