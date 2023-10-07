@@ -91,7 +91,7 @@ func (h *LiquidationProposalHandler) PrepareProposalHandler(ctx sdk.Context, req
 		iterator = iterator.Next()
 	}
 
-	h.bank.SetTotalLiquidations(totalLiquidations)
+	// h.bank.SetTotalLiquidations(totalLiquidations)
 	txs := h.txSelector.SelectedTxs(ctx)
 	if !totalLiquidations.IsZero() {
 		bz, _ := totalLiquidations.Marshal()
@@ -154,14 +154,18 @@ func (h *LiquidationProposalHandler) ProcessProposalHandler(ctx sdk.Context, req
 	return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_ACCEPT}, nil
 }
 
-func (h *LiquidationProposalHandler) PreBlock(req *abci.RequestFinalizeBlock) error {
-	txs := req.Txs
-	if len(txs) == 0 {
-		return nil
-	}
+func (h *LiquidationProposalHandler) PreBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+	fmt.Println("===================== PreBlock")
 	expectedTotalLiquidations := math.ZeroInt()
-	if expectedTotalLiquidations.Unmarshal(txs[0]) == nil {
-		h.bank.SetTotalLiquidations(expectedTotalLiquidations)
+	txs := req.Txs
+	if len(txs) > 0 {
+		a := math.ZeroInt()
+		if a.Unmarshal(txs[0]) == nil {
+			fmt.Println("===================== total ", a)
+			expectedTotalLiquidations = a
+		}
 	}
-	return nil
+	// we always need to set, event if there are not liquidations to zero the state
+	h.bank.SetTotalLiquidations(expectedTotalLiquidations)
+	return &sdk.ResponsePreBlock{ConsensusParamsChanged: false}, nil
 }

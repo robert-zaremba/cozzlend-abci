@@ -3,6 +3,7 @@
 package simapp
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -235,6 +236,9 @@ func NewSimApp(
 	app.App.BaseApp.SetMempool(abciPropHandler.Mempool)
 	app.App.BaseApp.SetPrepareProposal(abciPropHandler.PrepareProposalHandler)
 	app.App.BaseApp.SetProcessProposal(abciPropHandler.ProcessProposalHandler)
+	app.App.BaseApp.SetPreBlocker(abciPropHandler.PreBlock)
+
+	fmt.Println("$$$$$$$$$$$$$$$$$$$4 preblock", abciPropHandler.PreBlock)
 
 	// register streaming services
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {

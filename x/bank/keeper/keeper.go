@@ -73,7 +73,7 @@ var one = math.OneInt()
 func (k *BaseKeeper) SetTotalLiquidations(totalLiquidations math.Int) {
 	fmt.Println("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>> total liquidations ", totalLiquidations)
 	maxLiquidations := math.NewInt(100)
-	if maxLiquidations.GTE(totalLiquidations) {
+	if maxLiquidations.GTE(totalLiquidations) { // covers zero case as well
 		k.liquidationAdjustment = one
 		return
 	}
@@ -126,7 +126,7 @@ func NewBaseKeeper(
 		mintCoinsRestrictionFn: types.NoOpMintingRestrictionFn,
 		logger:                 logger,
 
-		liquidationAdjustment: math.ZeroInt(),
+		liquidationAdjustment: one,
 	}
 }
 
