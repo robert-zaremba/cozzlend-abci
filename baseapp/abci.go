@@ -762,10 +762,16 @@ func (app *BaseApp) FinalizeBlock(req *abci.RequestFinalizeBlock) (*abci.Respons
 	// NOTE: Not all raw transactions may adhere to the sdk.Tx interface, e.g.
 	// vote extensions, so skip those.
 	txResults := make([]*abci.ExecTxResult, 0, len(req.Txs))
-	for _, rawTx := range req.Txs {
+	for txi, rawTx := range req.Txs {
 		var response *abci.ExecTxResult
 
-		if _, err := app.txDecoder(rawTx); err == nil {
+		if tx, err := app.txDecoder(rawTx); err == nil {
+			var msgTypes []string
+			for _, msg := range tx.GetMsgs() {
+				msgTypes = append(msgTypes, sdk.MsgTypeURL(msg))
+			}
+			fmt.Println(">>>>> tx_i ", txi, " messages: ", msgTypes)
+
 			response = app.deliverTx(rawTx)
 		} else {
 			// In the case where a transaction included in a block proposal is malformed,
