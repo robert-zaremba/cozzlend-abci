@@ -43,4 +43,4 @@ All in a fair and inclusive manner.
 + [Overview and Solution Details](https://hackmd.io/@robert-zaremba/S1wPFYaeT)
 + [Polyton ICA deployment](https://github.com/udit-gulati/polytone)
 + [UI code](https://github.com/ali-yunes/crozzlend-fe)
-
++ [Presentation](https://docs.google.com/presentation/d/1vaukZ9jXa-k_Gm5-YNZYU9PID__3jg37faVZVL-3q4U/edit?usp=sharing)

@@ -81,12 +81,14 @@ export SIMD_CHAIN_ID=$chainid
 ##    DEMO
 #################################
 
-simd tx bank send -y user2 cosmos1f2xzyj84l3jlve24eysjrehuswyjp3r7m3tf2w 20uatom; simd tx bank liquidate -y user1 cosmos1f2xzyj84l3jlve24eysjrehuswyjp3r7m3tf2w 20stake
+simd tx bank send -y user2 cosmos1f2xzyj84l3jlve24eysjrehuswyjp3r7m3tf2w 20uatom & \
+simd tx bank liquidate -y user1 cosmos1f2xzyj84l3jlve24eysjrehuswyjp3r7m3tf2w 20stake
 
 
 simd q bank balances $(simd keys show user1 -a)
 
-simd tx bank liquidate -y user1 cosmos1f2xzyj84l3jlve24eysjrehuswyjp3r7m3tf2w 200stake; simd tx bank liquidate -y user2 cosmos1f2xzyj84l3jlve24eysjrehuswyjp3r7m3tf2w 300stake
+simd tx bank liquidate -y user1 cosmos1f2xzyj84l3jlve24eysjrehuswyjp3r7m3tf2w 200stake & \
+simd tx bank liquidate -y user2 cosmos1f2xzyj84l3jlve24eysjrehuswyjp3r7m3tf2w 300stake
 
 
 simd q bank balances $(simd keys show user1 -a)
