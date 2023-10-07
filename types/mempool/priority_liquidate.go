@@ -19,12 +19,18 @@ type LiquidationTxKey struct {
 	Nonce         int64
 }
 
-func newLiquidityTxPriority() TxPriority[LiquidationTxKey] {
+func newLiquidityTxPriority(liquidationMsgTypeURL string) TxPriority[LiquidationTxKey] {
 	return TxPriority[LiquidationTxKey]{
 		GetTxPriority: func(goCtx context.Context, tx sdk.Tx) LiquidationTxKey {
-			return LiquidationTxKey{false, sdk.UnwrapSDKContext(goCtx).Priority()}
+			var isLiquidation bool
+			msgs := tx.GetMsgs()
+			if len(msgs) == 1 {
+				isLiquidation = sdk.MsgTypeURL(msgs[0]) == liquidationMsgTypeURL
+			}
+			return LiquidationTxKey{isLiquidation, sdk.UnwrapSDKContext(goCtx).Priority()}
 		},
 		Compare: func(a, b LiquidationTxKey) int {
+
 			if a.IsLiquidation != b.IsLiquidation {
 				if a.IsLiquidation {
 					return 1
@@ -38,9 +44,9 @@ func newLiquidityTxPriority() TxPriority[LiquidationTxKey] {
 }
 
 // DefaultPriorityMempool returns a priorityNonceMempool with no options.
-func NewLiquidatorMempool() *PriorityNonceMempool[LiquidationTxKey] {
+func NewLiquidatorMempool(liquidationMsgTypeURL string) *PriorityNonceMempool[LiquidationTxKey] {
 	cfg := PriorityNonceMempoolConfig[LiquidationTxKey]{
-		TxPriority: newLiquidityTxPriority(),
+		TxPriority: newLiquidityTxPriority(liquidationMsgTypeURL),
 	}
 	return NewPriorityMempool(cfg)
 }

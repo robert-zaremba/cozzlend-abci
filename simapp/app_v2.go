@@ -28,6 +28,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -46,6 +47,8 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 // DefaultNodeHome default home directories for the application daemon
@@ -226,11 +229,12 @@ func NewSimApp(
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
 	// Setting prepare proposal
-	nonceMempool := mempool.NewLiquidatorMempool()
-	abciPropHandler := baseapp.NewDefaultProposalHandler(nonceMempool, app.App.BaseApp)
-	app.App.BaseApp.SetMempool(nonceMempool)
-	app.App.BaseApp.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
-	app.App.BaseApp.SetProcessProposal(abciPropHandler.ProcessProposalHandler())
+	//
+	liquidationMsgTypeURL := sdk.MsgTypeURL(new(banktypes.MsgLiquidate))
+	abciPropHandler := NewLiquidationProposalHandler(app.App.BaseApp, liquidationMsgTypeURL)
+	app.App.BaseApp.SetMempool(abciPropHandler.Mempool)
+	app.App.BaseApp.SetPrepareProposal(abciPropHandler.PrepareProposalHandler)
+	app.App.BaseApp.SetProcessProposal(abciPropHandler.ProcessProposalHandler)
 
 	// register streaming services
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
