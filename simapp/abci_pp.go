@@ -155,13 +155,11 @@ func (h *LiquidationProposalHandler) ProcessProposalHandler(ctx sdk.Context, req
 }
 
 func (h *LiquidationProposalHandler) PreBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
-	fmt.Println("===================== PreBlock")
 	expectedTotalLiquidations := math.ZeroInt()
 	txs := req.Txs
 	if len(txs) > 0 {
 		a := math.ZeroInt()
 		if a.Unmarshal(txs[0]) == nil {
-			fmt.Println("===================== total ", a)
 			expectedTotalLiquidations = a
 		}
 	}

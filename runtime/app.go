@@ -116,7 +116,9 @@ func (a *App) Load(loadLatest bool) error {
 
 	if len(a.config.PreBlockers) != 0 {
 		a.ModuleManager.SetOrderPreBlockers(a.config.PreBlockers...)
-		a.SetPreBlocker(a.PreBlocker)
+
+		// TODO: this overwrites
+		// a.SetPreBlocker(a.PreBlocker)
 	}
 
 	if len(a.config.BeginBlockers) != 0 {
