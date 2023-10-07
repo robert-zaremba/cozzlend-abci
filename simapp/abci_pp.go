@@ -4,8 +4,11 @@ import (
 	// "bytes"
 	// "context"
 
+	"fmt"
+
 	"github.com/cockroachdb/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
+
 	// cryptoenc "github.com/cometbft/cometbft/crypto/encoding"
 	// cmtprotocrypto "github.com/cometbft/cometbft/proto/tendermint/crypto"
 	// cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -88,8 +91,12 @@ func (h *LiquidationProposalHandler) PrepareProposalHandler(ctx sdk.Context, req
 		iterator = iterator.Next()
 	}
 
-	txs := h.txSelector.SelectedTxs(ctx)
 	h.bank.SetTotalLiquidations(totalLiquidations)
+	txs := h.txSelector.SelectedTxs(ctx)
+	if !totalLiquidations.IsZero() {
+		bz, _ := totalLiquidations.Marshal()
+		txs = append([][]byte{bz}, txs...)
+	}
 
 	return &abci.ResponsePrepareProposal{Txs: txs}, nil
 }
@@ -102,10 +109,29 @@ func (h *LiquidationProposalHandler) ProcessProposalHandler(ctx sdk.Context, req
 		maxBlockGas = b.MaxGas
 	}
 
-	for _, txBytes := range req.Txs {
+	totalLiquidations := math.ZeroInt()
+	expectedTotalLiquidations := math.ZeroInt()
+	txs := req.Txs
+
+	if len(txs) > 0 {
+		a := math.ZeroInt()
+		if a.Unmarshal(txs[0]) == nil {
+			txs = txs[1:]
+			expectedTotalLiquidations = a
+		}
+	}
+
+	for _, txBytes := range txs {
 		tx, err := h.txVerifier.ProcessProposalVerifyTx(txBytes)
 		if err != nil {
 			return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_REJECT}, nil
+		}
+
+		if msgs := tx.GetMsgs(); len(msgs) == 1 {
+			if sdk.MsgTypeURL(msgs[0]) == h.priorityMsgType {
+				msg := msgs[0].(*banktypes.MsgLiquidate)
+				totalLiquidations = totalLiquidations.Add(msg.Amount.Amount)
+			}
 		}
 
 		if maxBlockGas > 0 {
@@ -118,6 +144,11 @@ func (h *LiquidationProposalHandler) ProcessProposalHandler(ctx sdk.Context, req
 				return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_REJECT}, nil
 			}
 		}
+	}
+
+	if !totalLiquidations.Equal(expectedTotalLiquidations) {
+		fmt.Println("================ expected liquidations don't match!!!", totalLiquidations, expectedTotalLiquidations)
+		return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_REJECT}, nil
 	}
 
 	return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_ACCEPT}, nil
