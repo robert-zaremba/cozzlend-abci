@@ -8,6 +8,9 @@ n0cfgDir=$CHAIN_DIR/config
 n0cfg="$n0cfgDir/config.toml"
 n0app="$n0cfgDir/app.toml"
 
+export SIMD_CHAIN_ID=$chainid
+
+
 CLEANUP="${CLEANUP:-1}"
 if [[ "$CLEANUP" == 1 || "$CLEANUP" == "1" ]]; then
   rm -rf "$CHAIN_DIR"
@@ -29,6 +32,11 @@ USER2_ADDR="cosmos1f2xzyj84l3jlve24eysjrehuswyjp3r7m3tf2w"
 USER3_KEY="user3"
 USER3_MNEMONIC="depend utility document trigger check announce joy prepare often bonus either half report credit mad husband craft pass wall equip mandate divorce sheriff dutch"
 USER3_ADDR="cosmos1tdj93x9r4n9kl6az93r05l2v9fxphkn5guqyhw"
+
+USER4_KEY="user4"
+USER4_MNEMONIC="tuna miracle laundry acoustic manage surface ski return fringe federal process glide sunset abandon heart eager wagon north prefer raise pioneer essay sad rail"
+USER4_ADDR="cosmos1w3zl5mre4h8mtzezyxwsgsklkj3xe9fte9jg3n"
+
 
 scale_factor="000000"
 val_coins="3000${scale_factor}stake"
